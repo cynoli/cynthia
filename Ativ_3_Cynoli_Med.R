@@ -25,3 +25,4 @@ medicos %>% ggplot(aes(x = Idade)) + geom_density()
 
 # Gráfico de Barras com a variável "Qualificacao"
 medicos %>% ggplot(aes(x = Qualificacao, fill = Especialidade)) + geom_bar(position = "dodge")
+
