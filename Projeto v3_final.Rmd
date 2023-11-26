@@ -1,0 +1,134 @@
+---
+title: Relatório de Decisões Estratégicas Vendas
+output: html_document
+author: "Autor:Cynthia Oliveira, Antonio Henrique e Felipe Castelo"
+format: 
+  html:
+    theme: Pulse
+editor: visual
+title-block-banner: true
+---
+
+Este relatório tem como objetivo fornecer uma análise detalhada dos dados disponíveis e oferecer insights valiosos que podem embasar decisões estratégicas importantes. A base de dados em questão possui um total de 20 variáveis que cobrem diversos aspectos relevantes para a nossa análise.
+
+## Nossos desafios:
+
+A empresa enfrenta desafios significativos no atual cenário de mercado e precisa tomar decisões informadas para garantir o seu sucesso. Compreender profundamente os dados disponíveis é fundamental para a tomada de decisões eficazes.
+
+## Nossos dados:
+
+A análise gráfica é uma ferramenta poderosa para compreender os dados. Neste relatório, apresentamos uma série de gráficos que abrangem diversas dimensões das variáveis disponíveis. Os gráficos a seguir foram desenvolvidos com o objetivo de explorar diferentes aspectos dos dados e identificar tendências, padrões e insights relevantes:
+
+```{r setup, include=FALSE}
+pacman::p_load(crosstalk, d3scatter, dplyr, DT, leaflet, corrplot, 
+                 ggplot2, ggplot,
+                 janitor, 
+                 ade4, 
+                 arules,
+                 arulesViz,
+forcats, ggplotly)
+
+
+#ANTIGO
+
+Dados_Marketing <- read.csv2("C:/Users/cynthia.oliveira/Downloads/dados_marketingv2.csv")
+
+
+# Definir os cortes para discretização "Compras Web"
+cortes <- quantile(Dados_Marketing$`Numero.de.Compras.na.Web`, probs = c(0, 1/3, 2/3, 1))
+
+
+# Discretizar a variável e criar uma nova coluna chamada "Compras_Web_Categoria"
+Dados_Marketing <- Dados_Marketing %>%
+  mutate(Compras_Web_Categoria = cut(`Numero.de.Compras.na.Web`,
+                                     breaks = cortes,
+                                     labels = c("Baixo", "Médio", "Alto"),
+                                     include.lowest = TRUE))
+
+# Definir os cortes para discretização "Compras na Loja"
+cortes <- quantile(Dados_Marketing$`Numero.de.Compras.na.Loja`, probs = c(0, 1/3, 2/3, 1))
+
+# Discretizar a variável e criar uma nova coluna chamada "Compras_Loja_Categoria"
+Dados_Marketing <- Dados_Marketing %>%
+  mutate(Compras_Loja_Categoria = cut(`Numero.de.Compras.na.Loja`,
+                                      breaks = cortes,
+                                      labels = c("Baixo", "Médio", "Alto"),
+                                      include.lowest = TRUE))
+str(Dados_Marketing)
+
+# Selecionar apenas as variáveis numéricas
+dados_numericos <- Dados_Marketing %>%
+  select_if(is.numeric)
+
+# Resumo estatístico das variáveis numéricas
+summary(dados_numericos)
+
+#NOVO
+
+sd <- SharedData$new(Dados_Marketing)
+```
+
+## Dos resultados:
+
+```{r, warning=FALSE, out.width='100%', echo = FALSE, message = FALSE}
+
+
+filter_checkbox("Escolaridade", "Grau de Escolaridade", sd, ~Escolaridade, inline = TRUE)
+
+filter_checkbox("Pais", "Pais", sd, ~Pais, inline = TRUE)
+
+filter_checkbox("Estado.Civil", "Estado.Civil", sd, ~Estado.Civil, inline = TRUE)
+
+
+
+# Gráfico 1: Salario Anual x Gastos com Alimentos
+plotly::plot_ly(sd, x = ~`Salario.Anual`, y = ~`Gasto.com.Alimentos`)
+
+# Gráfico 2: Salario Anual x Gastos com Moveis
+plotly::plot_ly(sd, x = ~`Salario.Anual`, y = ~`Gasto.com.Moveis`)
+
+# Gráfico 3: Gráfico de Dispersão entre 'Salario Anual' e 'Gasto com Eletronicos'
+plotly::plot_ly(sd, x = ~`Salario.Anual`, y = ~`Gasto.com.Eletronicos`)
+
+# Gráfico 7: Gráfico de Barras Empilhadas para 'Estado Civil' e 'Compras WEB'
+plotly::plot_ly(sd, x = ~`Estado.Civil`, y = ~`Numero.de.Compras.na.Web`)
+
+# Gráfico 7: Gráfico de Barras Empilhadas para 'Estado Civil' e 'Compras LOJA'
+plotly::plot_ly(sd, x = ~`Estado.Civil`, y = ~`Numero.de.Compras.na.Loja`)
+  
+ datatable(sd, extensions="Scroller", style="bootstrap", class="compact", width="100%",
+    options=list(deferRender=TRUE, scrollY=300, scroller=TRUE))
+    
+```
+
+## Visão por região:
+
+No mapa a seguir é possível acompanhar nossos resultados por região:
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+
+leaflet(Dados_Marketing) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    lng = ~Longitude,
+    lat = ~Latitude,
+    clusterOptions = markerClusterOptions(),
+    color = "blue",
+    popup = ~paste(Dados_Marketing$Dados_Marketing)
+  )
+
+
+
+```
+
+## Conclusão:
+
+A análise exploratória de dados e visualização gráfica realizada neste relatório oferece uma visão detalhada das variáveis disponíveis. Os gráficos apresentados fornecem informações valiosas sobre diferentes aspectos do conjunto de dados, permitindo uma compreensão mais profunda de tendências e padrões.
+
+Com base nessa análise, a empresa estará mais bem preparada para tomar decisões estratégicas informadas que podem impactar positivamente o seu desempenho e direção futura.
+
+## Chegamos ao fim!
+
+Agradecemos pela companhia nesta viagem de descobertas. Estamos ansiosos para o próximo relatório, onde continuaremos a desbravar os mistérios dos dados e encontrar novos tesouros.
+
+Até a próxima parada! :)
